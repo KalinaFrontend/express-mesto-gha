@@ -2,7 +2,9 @@ const User = require('../models/userScheam');
 
 const getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.send({ data: users }));
+    .then((users) => {
+      res.send({ data: users });
+    });
 };
 
 const getUserId = (req, res) => {
