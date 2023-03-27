@@ -49,7 +49,7 @@ const patchProfile = (req, res) => {
 
 const patchAvatar = (req, res) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate(req.user._id, { avatar })
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .then((updatedAvatar) => res.send({ data: updatedAvatar }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
