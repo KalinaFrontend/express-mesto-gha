@@ -35,4 +35,30 @@ const createUser = (req, res) => {
     });
 };
 
-module.exports = { getUsers, getUserId, createUser };
+const patchProfile = (req, res) => {
+  const { name, about } = req.body;
+  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
+    .then((updatedUser) => res.send({ data: updatedUser }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(BAD_REQUEST).send({ message: 'Ошибка обработки данных' });
+      }
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' });
+    });
+};
+
+const patchAvatar = (req, res) => {
+  const { avatar } = req.body;
+  User.findByIdAndUpdate(req.user._id, { avatar })
+    .then((updatedAvatar) => res.send({ data: updatedAvatar }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(BAD_REQUEST).send({ message: 'Ошибка обработки данных' });
+      }
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' });
+    });
+};
+
+module.exports = {
+  getUsers, getUserId, createUser, patchProfile, patchAvatar,
+};
