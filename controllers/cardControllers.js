@@ -26,7 +26,7 @@ const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((cards) => {
       if (!cards) {
-        return res.status(NOT_FOUND).send({ message: 'Объект не найден' });
+        return res.status(NOT_FOUND).send({ message: 'Запрашиваемая карточка не найдена' });
       } return res.send({ data: cards });
     })
     .catch((err) => {
@@ -39,12 +39,12 @@ const deleteCard = (req, res) => {
 const putCardLike = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
+    { $addToSet: { likes: req.user._id } },
     { new: true },
   )
     .then((cards) => {
       if (!cards) {
-        return res.status(NOT_FOUND).send({ message: 'Объект не найден' });
+        return res.status(NOT_FOUND).send({ message: 'Запрашиваемая карточка не найдена' });
       } return res.send({ data: cards });
     })
     .catch((err) => {
@@ -63,7 +63,7 @@ const deleteCardLike = (req, res) => {
   )
     .then((cards) => {
       if (!cards) {
-        return res.status(NOT_FOUND).send({ message: 'Объект не найден' });
+        return res.status(NOT_FOUND).send({ message: 'Запрашиваемая карточка не найдена' });
       } return res.send({ data: cards });
     })
     .catch((err) => {

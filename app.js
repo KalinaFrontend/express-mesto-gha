@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const routerUsers = require('./routes/users');
 const routerCards = require('./routes/cards');
+const { NOT_FOUND } = require('./utils/constants');
 
 const { PORT = 3000 } = process.env;
 
@@ -24,6 +25,9 @@ app.use((req, res, next) => {
 
 app.use('/users', routerUsers);
 app.use('/cards', routerCards);
+app.use('*', (req, res) => {
+  res.status(NOT_FOUND).send({ message: 'Объект не найден' });
+});
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
