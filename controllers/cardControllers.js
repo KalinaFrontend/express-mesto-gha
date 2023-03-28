@@ -3,6 +3,8 @@ const { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = require('../utils/cons
 
 const getCards = (req, res) => {
   Card.find({})
+    .populate('owner')
+    .populate('likes')
     .then((cards) => {
       res.send({ data: cards });
     })
@@ -13,7 +15,8 @@ const createCard = (req, res) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
-    .then((newCard) => res.send({ data: newCard }))
+    .populate('owner')
+    .then((newCard) => res.status(201).send({ data: newCard }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(BAD_REQUEST).send({ message: 'Ошибка обработки данных' });
@@ -61,6 +64,7 @@ const deleteCardLike = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
+    .populate('likes')
     .then((cards) => {
       if (!cards) {
         return res.status(NOT_FOUND).send({ message: 'Запрашиваемая карточка не найдена' });

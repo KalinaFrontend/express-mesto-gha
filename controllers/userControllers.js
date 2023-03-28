@@ -26,7 +26,7 @@ const getUserId = (req, res) => {
 const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
-    .then((newUser) => res.send({ data: newUser }))
+    .then((newUser) => res.status(201).send({ data: newUser }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(BAD_REQUEST).send({ message: 'Ошибка обработки данных' });
