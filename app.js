@@ -1,8 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const routerUsers = require('./routes/users');
-const routerCards = require('./routes/cards');
-const { NOT_FOUND } = require('./utils/constants');
+const routes = require('./routes');
 
 const { PORT = 3000 } = process.env;
 
@@ -14,19 +12,13 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
 });
 
 app.use(express.json());
-
 app.use((req, res, next) => {
   req.user = {
     _id: '64209bc0f1de8ccfc7f98521',
   };
   next();
 });
-
-app.use('/users', routerUsers);
-app.use('/cards', routerCards);
-app.use('*', (req, res) => {
-  res.status(NOT_FOUND).send({ message: 'Объект не найден' });
-});
+app.use(routes);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
