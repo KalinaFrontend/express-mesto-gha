@@ -11,6 +11,24 @@ const getUsers = (req, res) => {
     .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' }));
 };
 
+const getUser = (req, res, next) => {
+  const userId = req.params.userId ? req.params.userId : req.user._id;
+  User.findById(userId)
+    .then((user) => {
+      if (!user) {
+        return res.status(NOT_FOUND).send({ message: 'Запрашиваемый пользователь не найден' });
+      }
+      return res.send(user);
+    })
+    .catch((err) => {
+      if (err.kind === 'ObjectId') {
+        next(res.status(NOT_FOUND).send({ message: 'Запрашиваемый пользователь не найден' }));
+      } else {
+        next(err);
+      }
+    });
+};
+
 const getUserId = (req, res) => {
   User.findById(req.params.userId)
     .then((userId) => {
@@ -84,5 +102,5 @@ const login = (req, res) => {
 };
 
 module.exports = {
-  getUsers, getUserId, createUser, patchProfile, patchAvatar, login,
+  getUsers, getUserId, createUser, patchProfile, patchAvatar, login, getUser,
 };
