@@ -1,3 +1,4 @@
+const { hash } = require('bcryptjs');
 const User = require('../models/userScheam');
 const { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = require('../utils/constants');
 
@@ -24,8 +25,14 @@ const getUserId = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+
+  hash(password, 10)
+    .then((hashedPassword) => User.create({
+      name, about, avatar, email, password: hashedPassword,
+    }))
     .then((newUser) => res.status(201).send({ data: newUser }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
