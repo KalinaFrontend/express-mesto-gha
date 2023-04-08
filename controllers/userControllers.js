@@ -1,4 +1,5 @@
 const { hash } = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/userScheam');
 const { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = require('../utils/constants');
 
@@ -66,6 +67,22 @@ const patchAvatar = (req, res) => {
     });
 };
 
+const login = (req, res) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      // создадим токен
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+
+      // вернём токен
+      res.send({ token });
+    })
+    .catch((err) => {
+      res.status(401).send({ message: err.message });
+    });
+};
+
 module.exports = {
-  getUsers, getUserId, createUser, patchProfile, patchAvatar,
+  getUsers, getUserId, createUser, patchProfile, patchAvatar, login,
 };
