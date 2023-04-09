@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 const routes = require('./routes');
 const CentralError = require('./errors/CentralError');
+const routeSignup = require('./routes/signup');
+const routeSignin = require('./routes/signin');
+const auth = require('./middlewares/auth');
 
 const { PORT = 3000 } = process.env;
 
@@ -13,6 +16,12 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
+
+app.use('/', routeSignup);
+app.use('/', routeSignin);
+
+app.use(auth);
+
 app.use(routes);
 
 app.use(errors());
