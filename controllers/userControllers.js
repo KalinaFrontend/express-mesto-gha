@@ -5,6 +5,7 @@ const { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = require('../utils/cons
 const ConflictError = require('../errors/ConflictError');
 const InaccurateDataError = require('../errors/InaccurateDataError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
+const NotFoundError = require('../errors/NotFoundError');
 
 const getUsers = (req, res) => {
   User.find({})
@@ -14,23 +15,25 @@ const getUsers = (req, res) => {
     .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' }));
 };
 
+
 const getUser = (req, res, next) => {
-  const userId = req.params.userId ? req.params.userId : req.user._id;
-  User.findById(userId)
+  const { userId } = req.user;
+  User
+    .findById(userId)
     .then((user) => {
-      if (!user) {
-        return res.status(NOT_FOUND).send({ message: 'Запрашиваемый пользователь не найден' });
-      }
-      return res.send(user);
+      if (user) return res.send({ user });
+
+      throw new NotFoundError('Запрашиваемый пользователь не найденн');
     })
     .catch((err) => {
-      if (err.kind === 'ObjectId') {
-        next(res.status(NOT_FOUND).send({ message: 'Запрашиваемый пользователь не найден' }));
+      if (err.name === 'CastError') {
+        next(new InaccurateDataError('Передан некорректный id'));
       } else {
         next(err);
       }
     });
-};
+}
+
 
 const getUserId = (req, res) => {
   User.findById(req.params.userId)
