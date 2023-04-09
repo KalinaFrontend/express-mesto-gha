@@ -15,7 +15,6 @@ const getUsers = (req, res) => {
     .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' }));
 };
 
-
 const getUser = (req, res, next) => {
   const { userId } = req.user;
   User
@@ -32,8 +31,7 @@ const getUser = (req, res, next) => {
         next(err);
       }
     });
-}
-
+};
 
 const getUserId = (req, res) => {
   User.findById(req.params.userId)
