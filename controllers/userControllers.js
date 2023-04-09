@@ -2,6 +2,8 @@ const { hash } = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userScheam');
 const { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = require('../utils/constants');
+const ConflictError = require('../errors/ConflictError');
+const InaccurateDataError = require('../errors/InaccurateDataError');
 
 const getUsers = (req, res) => {
   User.find({})
@@ -43,7 +45,7 @@ const getUserId = (req, res) => {
     });
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
@@ -52,12 +54,25 @@ const createUser = (req, res) => {
     .then((hashedPassword) => User.create({
       name, about, avatar, email, password: hashedPassword,
     }))
-    .then((newUser) => res.status(201).send({ data: newUser }))
+    .then((user) => {
+      const { _id } = user;
+
+      return res.status(201).send({
+        email,
+        name,
+        about,
+        avatar,
+        _id,
+      });
+    })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(BAD_REQUEST).send({ message: 'Ошибка обработки данных' });
+      if (err.code === 11000) {
+        next(new ConflictError('Пользователь с таким электронным адресом уже зарегистрирован'));
+      } else if (err.name === 'ValidationError') {
+        next(new InaccurateDataError('Переданы некорректные данные при регистрации пользователя'));
+      } else {
+        next(err);
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' });
     });
 };
 
@@ -92,7 +107,6 @@ const login = (req, res) => {
     .then((user) => {
       // создадим токен
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-
       // вернём токен
       res.send({ token });
     })
