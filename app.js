@@ -1,8 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
-const routes = require('./routes');
+const routerUsers = require('./routes/users');
+const routerCards = require('./routes/cards');
 const CentralError = require('./errors/CentralError');
+const NotFoundError = require('./errors/NotFoundError');
 const routeSignup = require('./routes/signup');
 const routeSignin = require('./routes/signin');
 const auth = require('./middlewares/auth');
@@ -22,7 +24,12 @@ app.use('/', routeSignin);
 
 app.use(auth);
 
-app.use(routes);
+app.use('/users', routerUsers);
+app.use('/cards', routerCards);
+
+app.use('*', () => {
+  throw new NotFoundError('Объект не найден');
+});
 
 app.use(errors());
 app.use(CentralError);
