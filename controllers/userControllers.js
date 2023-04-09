@@ -1,7 +1,9 @@
 const { hash } = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userScheam');
-const { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = require('../utils/constants');
+const {
+  BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR, JWT_SECRET,
+} = require('../utils/constants');
 const ConflictError = require('../errors/ConflictError');
 const InaccurateDataError = require('../errors/InaccurateDataError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
@@ -110,7 +112,7 @@ const login = (req, res, next) => {
       if (userId) {
         const token = jwt.sign(
           { userId },
-          'some-secret-key',
+          JWT_SECRET,
           { expiresIn: '7d' },
         );
 
