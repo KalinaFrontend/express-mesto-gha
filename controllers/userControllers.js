@@ -102,11 +102,12 @@ const getUserId = (req, res, next) => {
 
   User
     .findById(id)
+    // eslint-disable-next-line consistent-return
     .then((user) => {
-      if (!user) {
-        next(new NotFoundError('Запрашиваемый пользователь не найден'));
+      if (user) {
+        return res.send({ user });
       }
-      return res.send({ user });
+      next(new NotFoundError('Запрашиваемый пользователь не найден'));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -117,13 +118,31 @@ const getUserId = (req, res, next) => {
 
 const patchProfile = (req, res, next) => {
   const { name, about } = req.body;
-  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-    .then((updatedUser) => res.send({ data: updatedUser }))
+  const { userId } = req.user;
+
+  User
+    .findByIdAndUpdate(
+      userId,
+      {
+        name,
+        about,
+      },
+      {
+        new: true,
+        runValidators: true,
+      },
+    )
+    // eslint-disable-next-line consistent-return
+    .then((user) => {
+      if (user) return res.send({ user });
+      next(new NotFoundError('Запрашиваемый пользователь не найден'));
+    })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         next(new InaccurateDataError('Ошибка обработки данных'));
+      } else {
+        next(new CentralError('Внутренняя ошибка сервера'));
       }
-      next(new CentralError('Внутренняя ошибка сервера'));
     });
 };
 
