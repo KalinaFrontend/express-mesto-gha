@@ -102,12 +102,11 @@ const getUserId = (req, res, next) => {
 
   User
     .findById(id)
-    // eslint-disable-next-line consistent-return
     .then((user) => {
       if (user) {
         return res.send({ user });
       }
-      next(new NotFoundError('Запрашиваемый пользователь не найден'));
+      throw next(new NotFoundError('Запрашиваемый пользователь не найден'));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -132,10 +131,9 @@ const patchProfile = (req, res, next) => {
         runValidators: true,
       },
     )
-    // eslint-disable-next-line consistent-return
     .then((user) => {
       if (user) return res.send({ user });
-      next(new NotFoundError('Запрашиваемый пользователь не найден'));
+      throw next(new NotFoundError('Запрашиваемый пользователь не найден'));
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
