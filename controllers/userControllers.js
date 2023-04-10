@@ -103,8 +103,10 @@ const getUserId = (req, res, next) => {
   User
     .findById(id)
     .then((user) => {
-      if (user) return res.send({ user });
-      throw new NotFoundError('Запрашиваемый пользователь не найден');
+      if (!user) {
+        next(new NotFoundError('Запрашиваемый пользователь не найден'));
+      }
+      return res.send({ user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
