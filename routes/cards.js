@@ -3,7 +3,7 @@ const { celebrate, Joi } = require('celebrate');
 const {
   getCards, createCard, deleteCard, putCardLike, deleteCardLike,
 } = require('../controllers/cardControllers');
-const { imageLink } = require('../utils/constants');
+const { avatarLink } = require('../utils/constants');
 
 router.get('/', getCards);
 
@@ -12,7 +12,7 @@ router.post('/', celebrate({
     name: Joi.string().required().min(2).max(30),
     link: Joi.string()
       .required()
-      .pattern(imageLink),
+      .pattern(avatarLink),
   }),
 }), createCard);
 
