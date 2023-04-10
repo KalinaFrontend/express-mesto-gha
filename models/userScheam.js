@@ -1,10 +1,32 @@
 const mongoose = require('mongoose');
-const { compare } = require('bcryptjs');
-const isEmail = require('validator/lib/isEmail');
-const { regexImageLink } = require('../utils/constants');
+const bcrypt = require('bcryptjs');
 
-const userSchema = new mongoose.Schema(
+const { Schema } = mongoose;
+
+const { avatarLink } = require('../utils/constants');
+
+const userSchema = new Schema(
   {
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      validate: {
+        validator: (email) => /.+@.+\..+/.test(email),
+        message: 'Требуется ввести электронный адрес',
+      },
+    },
+
+    password: {
+      type: String,
+      required: true,
+      select: false,
+      validate: {
+        validator: ({ length }) => length >= 6,
+        message: 'Пароль должен состоять минимум из 6 символов',
+      },
+    },
+
     name: {
       type: String,
       default: 'Жак-Ив Кусто',
@@ -13,33 +35,23 @@ const userSchema = new mongoose.Schema(
         message: 'Имя пользователя должно быть длиной от 2 до 30 символов',
       },
     },
+
     about: {
       type: String,
-      minlength: 2,
-      maxlength: 30,
       default: 'Исследователь',
+      validate: {
+        validator: ({ length }) => length >= 2 && length <= 30,
+        message: 'Информация о пользователе должна быть длиной от 2 до 30 символов',
+      },
     },
+
     avatar: {
       type: String,
       default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
       validate: {
-        validator: (avatar) => regexImageLink.test(avatar),
-        message: 'Неверный формат ссылки аватара',
+        validator: (url) => avatarLink.test(url),
+        message: 'Требуется ввести URL',
       },
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      validate: {
-        validator: (email) => isEmail(email),
-        message: 'Неверный формат аватара email',
-      },
-    },
-    password: {
-      type: String,
-      required: true,
-      select: false,
     },
   },
 
@@ -52,7 +64,7 @@ const userSchema = new mongoose.Schema(
           .select('+password')
           .then((user) => {
             if (user) {
-              return compare(password, user.password)
+              return bcrypt.compare(password, user.password)
                 .then((matched) => {
                   if (matched) return user;
 
@@ -65,7 +77,6 @@ const userSchema = new mongoose.Schema(
       },
     },
   },
-
 );
 
 module.exports = mongoose.model('User', userSchema);
