@@ -14,12 +14,20 @@ const {
 
 const createUser = (req, res, next) => {
   const {
-    name, about, avatar, email, password,
+    email,
+    password,
+    name,
+    about,
+    avatar,
   } = req.body;
 
   hash(password, 10)
     .then((hashedPassword) => User.create({
-      name, about, avatar, email, password: hashedPassword,
+      email,
+      password: hashedPassword,
+      name,
+      about,
+      avatar,
     }))
     .then((user) => {
       const { _id } = user;
@@ -90,11 +98,13 @@ const getUser = (req, res, next) => {
 };
 
 const getUserId = (req, res, next) => {
-  User.findById(req.params.userId)
-    .then((userId) => {
-      if (!userId) {
-        next(new NotFoundError('Запрашиваемый пользователь не найден'));
-      } return res.send({ data: userId });
+  const { id } = req.params;
+
+  User
+    .findById(id)
+    .then((user) => {
+      if (user) return res.send({ user });
+      throw new NotFoundError('Запрашиваемый пользователь не найден');
     })
     .catch((err) => {
       if (err.name === 'CastError') {
