@@ -146,8 +146,12 @@ const patchProfile = (req, res, next) => {
 
 const patchAvatar = (req, res, next) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .then((updatedAvatar) => res.send({ data: updatedAvatar }))
+  const { userId } = req.user;
+  User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
+    .then((updatedAvatar) => {
+      if (updatedAvatar) return res.send({ updatedAvatar });
+      throw next(new NotFoundError('Запрашиваемый пользователь не найден'));
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new InaccurateDataError('Ошибка обработки данных'));
