@@ -8,18 +8,17 @@ const {
 
 const getCards = (req, res, next) => {
   Card.find({})
-    .populate('owner')
-    .populate('likes')
+    .populate(['owner', 'likes'])
     .then((cards) => {
-      res.send({ data: cards });
+      res.status(200).send({ data: cards });
     })
     .catch(() => next(new CentralError('Внутренняя ошибка сервера')));
 };
 
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
-  const owner = req.user._id;
-  Card.create({ name, link, owner })
+  const { userId } = req.user;
+  Card.create({ name, link, owner: userId })
     .then((newCard) => res.status(201).send({ data: newCard }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
