@@ -30,23 +30,20 @@ const createCard = (req, res, next) => {
 };
 
 const deleteCard = (req, res, next) => {
-  const { id: cardId } = req.params;
-  const { userId } = req.user;
+  const owner = req.user._id;
 
-  Card
-    .findById({
-      _id: cardId,
-    })
+  Card.findById(req.params.cardId)
     .then((card) => {
-      if (!card) throw new NotFoundError('Запрашиваемая карточка не найдена');
+      if (!card) {
+        throw next(new NotFoundError('Запрашиваемая карточка не найдена'));
+      }
+      if (card.owner.toString() !== owner) {
+        throw next(new ForbiddenError('Нет прав доступа'));
+      }
 
-      const { owner: cardOwnerId } = card;
-      if (cardOwnerId.valueOf() !== userId) throw new ForbiddenError('Нет прав доступа');
-
-      card.remove()
-        .then(() => res.send({ data: card }))
-        .catch(next);
+      return Card.findByIdAndRemove(req.params.cardId);
     })
+    .then((deletedCard) => res.send(deletedCard))
     .catch(() => next(new CentralError('Внутренняя ошибка сервера')));
 };
 
