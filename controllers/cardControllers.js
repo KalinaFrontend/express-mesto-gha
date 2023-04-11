@@ -45,12 +45,12 @@ const deleteCard = (req, res, next) => {
 const putCardLike = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $addToSet: { likes: req.user._id } },
+    { $addToSet: { likes: req.user.userId } },
     { new: true },
   )
     .then((cards) => {
       if (!cards) {
-        next(new NotFoundError('Запрашиваемая карточка не найдена'));
+        throw next(new NotFoundError('Запрашиваемая карточка не найдена'));
       } return res.send({ data: cards });
     })
     .catch((err) => {
@@ -64,13 +64,13 @@ const putCardLike = (req, res, next) => {
 const deleteCardLike = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $pull: { likes: req.user._id } },
+    { $pull: { likes: req.user.userId } },
     { new: true },
   )
     .populate('likes')
     .then((cards) => {
       if (!cards) {
-        next(new NotFoundError('Запрашиваемая карточка не найдена'));
+        throw next(new NotFoundError('Запрашиваемая карточка не найдена'));
       } return res.send({ data: cards });
     })
     .catch((err) => {
