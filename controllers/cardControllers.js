@@ -31,14 +31,16 @@ const createCard = (req, res, next) => {
 
 const deleteCard = (req, res, next) => {
   const { id: cardId } = req.params;
-  const owner = req.user._id;
+  const { userId } = req.user;
 
   Card.findById({ _id: cardId })
     .then((card) => {
       if (!card) {
         throw next(new NotFoundError('Запрашиваемая карточка не найдена'));
       }
-      if (card.owner.toString() !== owner) {
+
+      const { owner: cardOwnerId } = card;
+      if (cardOwnerId.valueOf() !== userId) {
         throw next(new ForbiddenError('Нет прав доступа'));
       }
 
