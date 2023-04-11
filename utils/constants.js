@@ -1,7 +1,8 @@
 const JWT_SECRET = 'JWT_SECRET';
 
 const imageLink = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/;
+const emailLink = /.+@.+\..+/;
 
 module.exports = {
-  imageLink, JWT_SECRET,
+  JWT_SECRET, imageLink, emailLink,
 };

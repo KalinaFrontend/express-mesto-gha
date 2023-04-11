@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { compare } = require('bcryptjs');
 
-const { imageLink } = require('../utils/constants');
+const { imageLink, emailLink } = require('../utils/constants');
 
 const userSchema = new mongoose.Schema(
   {
@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
       validate: {
-        validator: (email) => /.+@.+\..+/.test(email),
+        validator: (email) => emailLink.test(email),
         message: 'Требуется ввести электронный адрес',
       },
     },
