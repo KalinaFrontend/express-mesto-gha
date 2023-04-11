@@ -33,16 +33,16 @@ const deleteCard = (req, res, next) => {
   const { id: cardId } = req.params;
   const { userId } = req.user;
 
-  Card.findById({ id: cardId })
+  Card
+    .findById({
+      _id: cardId,
+    })
     .then((card) => {
-      if (!card) {
-        throw next(new NotFoundError('Запрашиваемая карточка не найдена'));
-      }
+      if (!card) throw new NotFoundError('Запрашиваемая карточка не найдена');
 
       const { owner: cardOwnerId } = card;
-      if (cardOwnerId.valueOf() !== userId) {
-        throw next(new ForbiddenError('Нет прав доступа'));
-      }
+      if (cardOwnerId.valueOf() !== userId) throw new ForbiddenError('Нет прав доступа');
+
       card.remove()
         .then(() => res.send({ data: card }))
         .catch(next);
