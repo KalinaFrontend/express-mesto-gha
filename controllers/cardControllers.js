@@ -2,6 +2,7 @@ const Card = require('../models/cardScheam');
 
 const {
   CentralError,
+  ForbiddenError,
   InaccurateDataError,
   NotFoundError,
 } = require('../middlewares/errors/index');
@@ -29,17 +30,24 @@ const createCard = (req, res, next) => {
 };
 
 const deleteCard = (req, res, next) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .then((cards) => {
-      if (!cards) {
-        next(new NotFoundError('Запрашиваемая карточка не найдена'));
-      } return res.send({ data: cards });
+  const { id: cardId } = req.params;
+  const { userId } = req.user;
+
+  Card.findById({ id: cardId })
+    .then((card) => {
+      if (!card) {
+        throw next(new NotFoundError('Запрашиваемая карточка не найдена'));
+      }
+
+      const { owner: cardOwnerId } = card;
+      if (cardOwnerId.valueOf() !== userId) {
+        throw next(new ForbiddenError('Нет прав доступа'));
+      }
+      card.remove()
+        .then(() => res.send({ data: card }))
+        .catch(next);
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new InaccurateDataError('Некоректный запрос к серверу'));
-      } next(new CentralError('Внутренняя ошибка сервера'));
-    });
+    .catch(() => next(new CentralError('Внутренняя ошибка сервера')));
 };
 
 const putCardLike = (req, res, next) => {
