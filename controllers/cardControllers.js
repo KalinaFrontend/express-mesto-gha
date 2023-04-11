@@ -43,10 +43,11 @@ const deleteCard = (req, res, next) => {
       if (cardOwnerId.valueOf() !== userId) {
         throw next(new ForbiddenError('Нет прав доступа'));
       }
-
-      return Card.findByIdAndRemove(req.params.cardId);
+      card
+        .remove()
+        .then(() => res.send({ data: card }))
+        .catch(() => next(new CentralError('Внутренняя ошибка сервера')));
     })
-    .then((deletedCard) => res.send(deletedCard))
     .catch(() => next(new CentralError('Внутренняя ошибка сервера')));
 };
 
