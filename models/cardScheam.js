@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { avatarLink } = require('../utils/constants');
+const { imageLink } = require('../utils/constants');
 
 const cardSchema = new mongoose.Schema({
   name: {
@@ -14,7 +14,7 @@ const cardSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator: (url) => avatarLink.test(url),
+      validator: (url) => imageLink.test(url),
       message: 'Требуется ввести URL',
     },
   },

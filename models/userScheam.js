@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const { compare } = require('bcryptjs');
 
-const { avatarLink } = require('../utils/constants');
+const { imageLink } = require('../utils/constants');
 
 const userSchema = new mongoose.Schema(
   {
@@ -47,7 +47,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
       validate: {
-        validator: (url) => avatarLink.test(url),
+        validator: (url) => imageLink.test(url),
         message: 'Требуется ввести URL',
       },
     },
@@ -62,7 +62,7 @@ const userSchema = new mongoose.Schema(
           .select('+password')
           .then((user) => {
             if (user) {
-              return bcrypt.compare(password, user.password)
+              return compare(password, user.password)
                 .then((matched) => {
                   if (matched) return user;
 

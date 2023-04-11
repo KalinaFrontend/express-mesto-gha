@@ -2,7 +2,7 @@ const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 
 const { createUser } = require('../controllers/userControllers');
-const { avatarLink } = require('../utils/constants');
+const { imageLink } = require('../utils/constants');
 
 router.post('/signup', celebrate({
   body: Joi.object().keys({
@@ -12,7 +12,7 @@ router.post('/signup', celebrate({
     about: Joi.string().min(2).max(30),
     avatar: Joi
       .string()
-      .pattern(avatarLink),
+      .pattern(imageLink),
   }),
 }), createUser);
 

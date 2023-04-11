@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
-const { avatarLink } = require('../utils/constants');
+const { imageLink } = require('../utils/constants');
 
 const {
   getUsers,
@@ -29,7 +29,7 @@ router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
     avatar: Joi
       .string()
-      .pattern(avatarLink),
+      .pattern(imageLink),
   }),
 }), patchAvatar);
 
