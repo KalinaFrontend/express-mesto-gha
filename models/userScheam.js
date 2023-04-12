@@ -20,7 +20,6 @@ const userSchema = new mongoose.Schema(
       required: true,
       select: false,
       validate: {
-        validator: ({ length }) => length >= 6,
         message: 'Пароль должен состоять минимум из 6 символов',
       },
     },
@@ -29,7 +28,8 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: 'Жак-Ив Кусто',
       validate: {
-        validator: ({ length }) => length >= 2 && length <= 30,
+        minlength: 2,
+        maxlength: 30,
         message: 'Имя пользователя должно быть длиной от 2 до 30 символов',
       },
     },
@@ -38,7 +38,8 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: 'Исследователь',
       validate: {
-        validator: ({ length }) => length >= 2 && length <= 30,
+        minlength: 2,
+        maxlength: 30,
         message: 'Информация о пользователе должна быть длиной от 2 до 30 символов',
       },
     },

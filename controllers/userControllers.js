@@ -4,7 +4,6 @@ const User = require('../models/userScheam');
 const { JWT_SECRET } = require('../utils/constants');
 
 const {
-  CentralError,
   ConflictError,
 
   InaccurateDataError,
@@ -76,7 +75,7 @@ const getUsers = (req, res, next) => {
     .then((users) => {
       res.send({ data: users });
     })
-    .catch(() => next(new CentralError('Внутренняя ошибка сервера')));
+    .catch((err) => next(err));
 };
 
 const getUser = (req, res, next) => {
@@ -106,12 +105,14 @@ const getUserId = (req, res, next) => {
       if (user) {
         return res.send({ user });
       }
-      throw next(new NotFoundError('Запрашиваемый пользователь не найден'));
+      throw new NotFoundError('Запрашиваемый пользователь не найден');
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new InaccurateDataError('Передан некорректный id'));
-      } next(new CentralError('Внутренняя ошибка сервера'));
+      } else {
+        next(err);
+      }
     });
 };
 
@@ -133,13 +134,13 @@ const patchProfile = (req, res, next) => {
     )
     .then((user) => {
       if (user) return res.send({ user });
-      throw next(new NotFoundError('Запрашиваемый пользователь не найден'));
+      throw new NotFoundError('Запрашиваемый пользователь не найден');
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         next(new InaccurateDataError('Ошибка обработки данных'));
       } else {
-        next(new CentralError('Внутренняя ошибка сервера'));
+        next(err);
       }
     });
 };
@@ -150,13 +151,14 @@ const patchAvatar = (req, res, next) => {
   User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
     .then((updatedAvatar) => {
       if (updatedAvatar) return res.send({ updatedAvatar });
-      throw next(new NotFoundError('Запрашиваемый пользователь не найден'));
+      throw new NotFoundError('Запрашиваемый пользователь не найден');
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new InaccurateDataError('Ошибка обработки данных'));
+      } else {
+        next(err);
       }
-      next(new CentralError('Внутренняя ошибка сервера'));
     });
 };
 

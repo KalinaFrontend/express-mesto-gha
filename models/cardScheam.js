@@ -6,7 +6,8 @@ const cardSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator: ({ length }) => length >= 2 && length <= 30,
+      minlength: 2,
+      maxlength: 30,
       message: 'Имя карточки должно быть длиной от 2 до 30 символов',
     },
   },
@@ -26,7 +27,7 @@ const cardSchema = new mongoose.Schema({
   likes: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    default: {},
+    default: [],
   }],
   createdAt: {
     type: Date,

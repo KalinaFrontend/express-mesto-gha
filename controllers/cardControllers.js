@@ -1,7 +1,6 @@
 const Card = require('../models/cardScheam');
 
 const {
-  CentralError,
   ForbiddenError,
   InaccurateDataError,
   NotFoundError,
@@ -9,11 +8,10 @@ const {
 
 const getCards = (req, res, next) => {
   Card.find({})
-    .populate(['owner', 'likes'])
     .then((cards) => {
       res.status(200).send({ data: cards });
     })
-    .catch(() => next(new CentralError('Внутренняя ошибка сервера')));
+    .catch((err) => next(err));
 };
 
 const createCard = (req, res, next) => {
@@ -24,8 +22,9 @@ const createCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new InaccurateDataError('Переданы некорректные данные при создании карточки'));
+      } else {
+        next(err);
       }
-      next(new CentralError('Внутренняя ошибка сервера'));
     });
 };
 
@@ -36,19 +35,18 @@ const deleteCard = (req, res, next) => {
   Card.findById({ _id: cardId })
     .then((card) => {
       if (!card) {
-        throw next(new NotFoundError('Запрашиваемая карточка не найдена'));
+        throw new NotFoundError('Запрашиваемая карточка не найдена');
       }
 
       const { owner: cardOwnerId } = card;
       if (cardOwnerId.valueOf() !== userId) {
-        throw next(new ForbiddenError('Нет прав доступа'));
+        throw new ForbiddenError('Нет прав доступа');
       }
       card
         .remove()
-        .then(() => res.send({ data: card }))
-        .catch(() => next(new CentralError('Внутренняя ошибка сервера')));
+        .then(() => res.send({ data: card }));
     })
-    .catch(() => next(new CentralError('Внутренняя ошибка сервера')));
+    .catch((err) => next(err));
 };
 
 const putCardLike = (req, res, next) => {
@@ -59,14 +57,15 @@ const putCardLike = (req, res, next) => {
   )
     .then((cards) => {
       if (!cards) {
-        throw next(new NotFoundError('Запрашиваемая карточка не найдена'));
+        throw new NotFoundError('Запрашиваемая карточка не найдена');
       } return res.send({ data: cards });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new InaccurateDataError('Некоректный запрос к серверу'));
+      } else {
+        next(err);
       }
-      next(new CentralError('Внутренняя ошибка сервера'));
     });
 };
 
@@ -79,14 +78,15 @@ const deleteCardLike = (req, res, next) => {
     .populate('likes')
     .then((cards) => {
       if (!cards) {
-        throw next(new NotFoundError('Запрашиваемая карточка не найдена'));
+        throw new NotFoundError('Запрашиваемая карточка не найдена');
       } return res.send({ data: cards });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new InaccurateDataError('Некоректный запрос к серверу'));
+      } else {
+        next(err);
       }
-      next(new CentralError('Внутренняя ошибка сервера'));
     });
 };
 
