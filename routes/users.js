@@ -1,6 +1,14 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
-const { imageLink } = require('../utils/constants');
+const validator = require('validator');
+
+const isUrl = (link) => {
+  const result = validator.isURL(link);
+  if (result) {
+    return link;
+  }
+  throw new Error('Невалидный URL');
+};
 
 const {
   getUsers,
@@ -27,9 +35,7 @@ router.patch('/me', celebrate({
 
 router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi
-      .string()
-      .pattern(imageLink),
+    avatar: Joi.string().required().custom(isUrl),
   }),
 }), patchAvatar);
 

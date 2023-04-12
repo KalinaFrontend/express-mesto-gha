@@ -1,18 +1,25 @@
 const router = require('express').Router();
+const validator = require('validator');
+
 const { celebrate, Joi } = require('celebrate');
 const {
   getCards, createCard, deleteCard, putCardLike, deleteCardLike,
 } = require('../controllers/cardControllers');
-const { imageLink } = require('../utils/constants');
+
+const isUrl = (link) => {
+  const result = validator.isURL(link);
+  if (result) {
+    return link;
+  }
+  throw new Error('Невалидный URL');
+};
 
 router.get('/', getCards);
 
 router.post('/', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
-    link: Joi.string()
-      .required()
-      .pattern(imageLink),
+    link: Joi.string().required().custom(isUrl),
   }),
 }), createCard);
 

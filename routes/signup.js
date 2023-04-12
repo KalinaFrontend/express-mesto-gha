@@ -1,8 +1,17 @@
 const router = require('express').Router();
+const validator = require('validator');
+
 const { celebrate, Joi } = require('celebrate');
 
 const { createUser } = require('../controllers/userControllers');
-const { imageLink } = require('../utils/constants');
+
+const isUrl = (link) => {
+  const result = validator.isURL(link);
+  if (result) {
+    return link;
+  }
+  throw new Error('Невалидный URL');
+};
 
 router.post('/signup', celebrate({
   body: Joi.object().keys({
@@ -10,9 +19,7 @@ router.post('/signup', celebrate({
     password: Joi.string().required(),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi
-      .string()
-      .pattern(imageLink),
+    avatar: Joi.string().custom(isUrl),
   }),
 }), createUser);
 
