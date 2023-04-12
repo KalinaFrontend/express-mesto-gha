@@ -1,14 +1,7 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
-const validator = require('validator');
 
-const isUrl = (link) => {
-  const result = validator.isURL(link);
-  if (result) {
-    return link;
-  }
-  throw new Error('Невалидный URL');
-};
+const { isUrl } = require('../utils/constants');
 
 const {
   getUsers,

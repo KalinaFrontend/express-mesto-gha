@@ -1,18 +1,10 @@
 const router = require('express').Router();
-const validator = require('validator');
-
 const { celebrate, Joi } = require('celebrate');
+
+const { isUrl } = require('../utils/constants');
 const {
   getCards, createCard, deleteCard, putCardLike, deleteCardLike,
 } = require('../controllers/cardControllers');
-
-const isUrl = (link) => {
-  const result = validator.isURL(link);
-  if (result) {
-    return link;
-  }
-  throw new Error('Невалидный URL');
-};
 
 router.get('/', getCards);
 
