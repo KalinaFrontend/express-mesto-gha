@@ -4,7 +4,6 @@ const { errors } = require('celebrate');
 const auth = require('./middlewares/auth');
 const routes = require('./routes');
 const CentralError = require('./middlewares/errors/centralError');
-const NotFoundError = require('./middlewares/errors/notFoundError');
 const routeSignup = require('./routes/signup');
 const routeSignin = require('./routes/signin');
 
@@ -24,10 +23,6 @@ app.use('/', routeSignin);
 app.use(auth);
 
 app.use(routes);
-
-app.use('*', () => {
-  throw new NotFoundError('Объект не найден');
-});
 
 app.use(errors());
 app.use(CentralError);

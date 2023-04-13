@@ -44,9 +44,16 @@ const deleteCard = (req, res, next) => {
       }
       card
         .remove()
-        .then(() => res.send({ data: card }));
+        .then(() => res.send({ data: card }))
+        .catch(next);
     })
-    .catch((err) => next(err));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new InaccurateDataError('Некоректный запрос к серверу'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 const putCardLike = (req, res, next) => {
